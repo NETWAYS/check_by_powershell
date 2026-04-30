@@ -1,4 +1,4 @@
-module github.com/Icinga/check_by_powershell
+module github.com/NETWAYS/check_by_powershell
 
 go 1.25.0
 

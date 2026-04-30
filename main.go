@@ -22,12 +22,10 @@ Supported authentication methods:
 * NTLM with local or AD accounts
 * TLS client certificate
 
-https://github.com/Icinga/check_by_powershell
+https://github.com/Netways/check_by_powershell
 
-https://github.com/Icinga/icinga-powershell-framework
-https://github.com/Icinga/icinga-powershell-plugins
-
-Copyright (c) 2020 Icinga GmbH <info@icinga.com>
+Copyright (c) 2026 Netways GmbH <info@netways.de>
+Copyright (c) 2020-2026 Icinga GmbH <info@icinga.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
