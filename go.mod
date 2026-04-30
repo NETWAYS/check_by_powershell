@@ -5,7 +5,6 @@ go 1.25.0
 require (
 	github.com/NETWAYS/go-check v0.6.4
 	github.com/masterzen/winrm v0.0.0-20260407182533-5570be7f80cf
-	github.com/sirupsen/logrus v1.9.4
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.11.1
 	golang.org/x/crypto v0.50.0

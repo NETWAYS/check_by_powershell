@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"time"
 
@@ -52,6 +53,11 @@ func main() {
 
 	config := BuildConfigFlags(plugin.FlagSet)
 	plugin.ParseArguments()
+
+	if plugin.Debug {
+		logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+		slog.SetDefault(logger)
+	}
 
 	err := config.Validate()
 	if err != nil {

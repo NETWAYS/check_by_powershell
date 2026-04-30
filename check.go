@@ -5,12 +5,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/masterzen/winrm"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 	"golang.org/x/crypto/ssh"
 )
@@ -126,7 +126,7 @@ func (c *Config) Validate() (err error) {
 		if c.AuthType == "" {
 			c.AuthType = AuthTLS
 		} else {
-			log.Warnf("auth type is %s, but TLS certificates are supplied", c.AuthType)
+			slog.Warn(fmt.Sprintf("auth type is %s, but TLS certificates are supplied", c.AuthType))
 		}
 	}
 
@@ -175,10 +175,11 @@ func (c *Config) BuildCommand() (cmd string) {
 		cmd = fmt.Sprintf(wrap, c.Command)
 	}
 
-	log.WithField("cmd", cmd).Debug("prepared pwsh for execution")
+	slog.Debug("prepared pwsh for execution", "cmd", cmd)
 
 	cmd = winrm.Powershell(cmd)
-	log.WithField("cmd", cmd).Debug("prepared winrm command for execution")
+
+	slog.Debug("prepared winrm command for execution", "cmd", cmd)
 
 	return
 }
@@ -187,8 +188,6 @@ func (c *Config) Run(timeout time.Duration) (rc int, output string, err error) {
 	if !c.validated {
 		panic("you need to call Validate() before Run()")
 	}
-
-	log.WithField("config", *c).Debug("Running check with config")
 
 	endpoint := winrm.NewEndpoint(
 		c.Host,     // Host to connect to
@@ -253,12 +252,6 @@ func (c *Config) Run(timeout time.Duration) (rc int, output string, err error) {
 	}
 
 	output = stdout.String()
-
-	// Info the debug output can confuse testing
-	if log.GetLevel() >= log.DebugLevel && stderr.Len() > 0 {
-		output += fmt.Sprintln("stderr contained:")
-		output += fmt.Sprintln(stderr.String())
-	}
 
 	return
 }
