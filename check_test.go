@@ -9,14 +9,18 @@ import (
 	"time"
 
 	"github.com/spf13/pflag"
-	"github.com/stretchr/testify/assert"
 )
 
 const DefaultTimeout = 15 * time.Second
 
 func TestConfig_Validate(t *testing.T) {
 	c := &Config{}
-	assert.Error(t, c.Validate())
+
+	errVal := c.Validate()
+
+	if errVal == nil {
+		t.Error("Did expect error got nil")
+	}
 
 	// Most basic settings
 	c.Host = "localhost"
@@ -24,27 +28,56 @@ func TestConfig_Validate(t *testing.T) {
 	c.User = "administrator"
 	c.Password = "verysecret"
 
-	assert.NoError(t, c.Validate())
-	assert.Equal(t, c.Port, TlsPort)
-	assert.False(t, c.NoTls)
-	assert.Equal(t, c.AuthType, AuthDefault)
-	assert.True(t, c.validated)
+	errVal = c.Validate()
+
+	if errVal != nil {
+		t.Error("Did not expect error got", errVal)
+	}
+
+	if c.Port != TlsPort {
+		t.Error("Actual", c.Port, "Expected", TlsPort)
+	}
+
+	if c.NoTls != false {
+		t.Error("Expected NoTls to be false, got true")
+	}
+
+	if c.AuthType != AuthDefault {
+		t.Error("Actual", c.AuthType, "Expected", AuthDefault)
+	}
+
+	if c.validated != true {
+		t.Error("Expected validated to be true, got false")
+	}
 }
 
 func TestBuildConfigFlags(t *testing.T) {
 	fs := &pflag.FlagSet{}
 	config := BuildConfigFlags(fs)
 
-	assert.True(t, fs.HasFlags())
-	assert.False(t, config.validated)
+	if fs.HasFlags() != true {
+		t.Error("Expected hasFalgs to be true, got false")
+	}
+
+	if config.validated != false {
+		t.Error("Expected config.validated to be false, got true")
+	}
+
 }
 
 func TestConfig_BuildCommand(t *testing.T) {
 	c := &Config{Command: "Get-Something"}
-	assert.Contains(t, c.BuildCommand(), "powershell.exe -EncodedCommand")
+
+	cmd := c.BuildCommand()
+	if !strings.Contains(c.BuildCommand(), "powershell.exe -EncodedCommand") {
+		t.Error("\nExpected 'powershell.exe -EncodedCommand': ", cmd)
+	}
 
 	c = &Config{IcingaCommand: "Icinga-CheckSomething"}
-	assert.Contains(t, c.BuildCommand(), "powershell.exe -EncodedCommand")
+	cmd = c.BuildCommand()
+	if !strings.Contains(cmd, "powershell.exe -EncodedCommand") {
+		t.Error("\nExpected 'powershell.exe -EncodedCommand': ", cmd)
+	}
 }
 
 func TestConfig_Run_WithError(t *testing.T) {
@@ -57,11 +90,18 @@ func TestConfig_Run_WithError(t *testing.T) {
 	}
 
 	err := c.Validate()
-	assert.NoError(t, err)
+	if err != nil {
+		t.Error("Did not expect error got", err)
+	}
 
 	_, _, err = c.Run(1 * time.Second)
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "dial tcp 192.0.2.11:")
+	if err == nil {
+		t.Error("Did expect error got nil")
+	}
+
+	if !strings.Contains(err.Error(), "dial tcp 192.0.2.11:") {
+		t.Error("\nExpected 'dial tcp 192.0.2.11:'", err.Error())
+	}
 }
 
 func TestConfig_Run_Basic(t *testing.T) {
@@ -90,7 +130,9 @@ func TestConfig_Run_Basic_WithTLS(t *testing.T) {
 	setupTlsFromEnv(t, c)
 
 	err := c.Validate()
-	assert.NoError(t, err)
+	if err != nil {
+		t.Error("Did not expect error got", err)
+	}
 
 	fmt.Printf("%v\n", c)
 
@@ -106,7 +148,9 @@ func TestConfig_Run_NTLM(t *testing.T) {
 	c.NoTls = true
 
 	err := c.Validate()
-	assert.NoError(t, err)
+	if err != nil {
+		t.Error("Did not expect error got", err)
+	}
 
 	fmt.Printf("%v\n", c)
 
@@ -118,7 +162,9 @@ func TestConfig_Run_NTLM_WithTls(t *testing.T) {
 	setupTlsFromEnv(t, c)
 
 	err := c.Validate()
-	assert.NoError(t, err)
+	if err != nil {
+		t.Error("Did not expect error got", err)
+	}
 
 	fmt.Printf("%v\n", c)
 
@@ -134,7 +180,9 @@ func TestConfig_Run_TLS(t *testing.T) {
 	}
 
 	err := c.Validate()
-	assert.NoError(t, err)
+	if err != nil {
+		t.Error("Did not expect error got", err)
+	}
 
 	fmt.Printf("%v\n", c)
 
@@ -143,12 +191,22 @@ func TestConfig_Run_TLS(t *testing.T) {
 
 func runCheck(t *testing.T, c *Config) {
 	err := c.Validate()
-	assert.NoError(t, err)
+	if err != nil {
+		t.Error("Did not expect error got", err)
+	}
 
 	rc, output, err := c.Run(DefaultTimeout)
-	assert.NoError(t, err)
-	assert.Equal(t, 0, rc)
-	assert.Contains(t, output, "ConsoleHost")
+	if err != nil {
+		t.Error("Did not expect error got", err)
+	}
+
+	if 0 != rc {
+		t.Error("Actual", rc, "Expected", 0)
+	}
+
+	if !strings.Contains(output, "ConsoleHost") {
+		t.Error("\nExpected 'ConsoleHost'", output)
+	}
 }
 
 func buildEnvConfig(t *testing.T, auth string) *Config {
@@ -201,7 +259,9 @@ func setupTlsFromEnv(t *testing.T, c *Config) {
 
 	if file := os.Getenv("WINRM_TLS_PORT"); file != "" {
 		tmp, err := strconv.ParseInt(file, 10, 16)
-		assert.NoError(t, err)
+		if err != nil {
+			t.Error("Did not expect error got", err)
+		}
 
 		c.Port = int(tmp)
 	}
