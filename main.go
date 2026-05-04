@@ -9,21 +9,22 @@ import (
 	"github.com/NETWAYS/go-check"
 )
 
-const readme = `Icinga check plugin to run checks and other commands directly on
+// nolint: gochecknoglobals
+var (
+	// These get filled at build time with the proper vaules.
+	version = "development"
+	commit  = "HEAD"
+	date    = "latest"
+)
+
+const readme = `
+Icinga check plugin to run checks and other commands directly on
 any Windows system using WinRM (Windows Remote Management) and Powershell
 
 Main use case would be to call one of the plugins from the Icinga Powershell Framework.
 This will avoid the requirement of installing an Icinga 2 agent on every Windows system.
 
 The plugin will require WinRM to be preconfigured for access with a HTTPs or HTTP connection.
-
-Supported authentication methods:
-
-* Basic with local users
-* NTLM with local or AD accounts
-* TLS client certificate
-
-https://github.com/Netways/check_by_powershell
 
 Copyright (c) 2026 Netways GmbH <info@netways.de>
 Copyright (c) 2020-2026 Icinga GmbH <info@icinga.com>
@@ -39,7 +40,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see https://www.gnu.org/licenses/.`
+along with this program.  If not, see https://www.gnu.org/licenses/.
+`
 
 func main() {
 	defer check.CatchPanic()
@@ -71,4 +73,20 @@ func main() {
 
 	fmt.Print(output)
 	os.Exit(rc)
+}
+
+func buildVersion() string {
+	result := version
+
+	if commit != "" {
+		result = fmt.Sprintf("%s\ncommit: %s", result, commit)
+	}
+
+	if date != "" {
+		result = fmt.Sprintf("%s\ndate: %s", result, date)
+	}
+
+	result += "\n" + readme
+
+	return result
 }
