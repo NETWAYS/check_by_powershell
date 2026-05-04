@@ -1,23 +1,13 @@
-GIT_COMMIT := $(shell git rev-list -1 HEAD)
-DATE := $(shell date --iso-8601=seconds)
-GO_BUILD := go build -v -ldflags "-X main.commit=$(GIT_COMMIT) -X main.date=$(DATE) -X main.builtBy=make"
-
-NAME = check_by_powershell
-
-.PHONY: all clean build test
-
-all: build test
-
-distclean: clean
-clean:
-	rm -rf build/
+.PHONY: test coverage lint vet
 
 build:
-	mkdir -p build
-	GOOS=linux   GOARCH=amd64 $(GO_BUILD) -o build/$(NAME)-linux-amd64 .
-	GOOS=linux   GOARCH=386   $(GO_BUILD) -o build/$(NAME)-linux-i386 .
-	GOOS=windows GOARCH=amd64 $(GO_BUILD) -o build/$(NAME)-windows-amd64.exe .
-	GOOS=darwin  GOARCH=amd64 $(GO_BUILD) -o build/$(NAME)-darwin-amd64 .
-
+	CGO_ENABLED=0 go build
+lint:
+	go fmt $(go list ./... | grep -v /vendor/)
+vet:
+	go vet $(go list ./... | grep -v /vendor/)
 test:
-	go test -v ./...
+	go test -v -cover ./...
+coverage:
+	go test -v -cover -coverprofile=coverage.out ./... &&\
+	go tool cover -html=coverage.out -o coverage.html
