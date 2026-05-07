@@ -34,11 +34,11 @@ func TestConfig_Validate(t *testing.T) {
 		t.Error("Did not expect error got", errVal)
 	}
 
-	if c.Port != TlsPort {
-		t.Error("Actual", c.Port, "Expected", TlsPort)
+	if c.Port != TLSPort {
+		t.Error("Actual", c.Port, "Expected", TLSPort)
 	}
 
-	if c.NoTls != false {
+	if c.NoTLS != false {
 		t.Error("Expected NoTls to be false, got true")
 	}
 
@@ -86,7 +86,7 @@ func TestConfig_Run_WithError(t *testing.T) {
 		User:     "admin",
 		Password: "test",
 		Command:  "Get-Host",
-		NoTls:    true,
+		NoTLS:    true,
 	}
 
 	err := c.Validate()
@@ -114,7 +114,7 @@ func TestConfig_Run_Basic(t *testing.T) {
 	}
 
 	c := buildEnvConfig(t, AuthBasic)
-	c.NoTls = true
+	c.NoTLS = true
 
 	fmt.Printf("%v\n", c)
 
@@ -145,7 +145,7 @@ func TestConfig_Run_NTLM(t *testing.T) {
 	}
 
 	c := buildEnvConfig(t, AuthNTLM)
-	c.NoTls = true
+	c.NoTLS = true
 
 	err := c.Validate()
 	if err != nil {
@@ -175,7 +175,7 @@ func TestConfig_Run_TLS(t *testing.T) {
 	c := buildEnvConfig(t, AuthTLS)
 	setupTlsFromEnv(t, c)
 
-	if c.TlsCertPath == "" {
+	if c.TLSCertPath == "" {
 		t.Skip("WINRM_TLS_CERT not set")
 	}
 
@@ -246,15 +246,15 @@ func setupTlsFromEnv(t *testing.T, c *Config) {
 	}
 
 	if file := os.Getenv("WINRM_TLS_CA"); file != "" {
-		c.TlsCAPath = file
+		c.TLSCAPath = file
 	}
 
 	if file := os.Getenv("WINRM_TLS_CERT"); file != "" {
-		c.TlsCertPath = file
+		c.TLSCertPath = file
 	}
 
 	if file := os.Getenv("WINRM_TLS_KEY"); file != "" {
-		c.TlsKeyPath = file
+		c.TLSKeyPath = file
 	}
 
 	if file := os.Getenv("WINRM_TLS_PORT"); file != "" {
