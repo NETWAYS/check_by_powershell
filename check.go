@@ -44,6 +44,7 @@ type Config struct {
 	SSHHost       string
 	SSHUser       string
 	SSHPassword   string
+	SSHPort       int
 	validated     bool
 }
 
@@ -52,7 +53,7 @@ func BuildConfigFlags(fs *pflag.FlagSet) (config *Config) {
 
 	fs.StringVarP(&config.Host, "host", "H", "127.0.0.1",
 		"Host name, IP Address of the remote host")
-	fs.IntVarP(&config.Port, "port", "p", 0, "Port number WinRM") // TODO: document default
+	fs.IntVarP(&config.Port, "port", "p", 0, "Port number WinRM (default: 5985 & 5986 for TLS)")
 
 	fs.StringVarP(&config.User, "user", "U", "", "Username of the remote host")
 	fs.StringVarP(&config.Password, "password", "P", "", "Password of the user")
@@ -72,6 +73,7 @@ func BuildConfigFlags(fs *pflag.FlagSet) (config *Config) {
 
 	// AuthSSH
 	fs.StringVar(&config.SSHHost, "sshhost", "", "SSH Host (mandatory if --auth=SSH)")
+	fs.IntVarP(&config.SSHPort, "sshport", "", 22, "SSH Port")
 	fs.StringVar(&config.SSHUser, "sshuser", "", "SSH Username (mandatory if --auth=SSH)")
 	fs.StringVar(&config.SSHPassword, "sshpassword", "", "SSH Password (mandatory if --auth=SSH)")
 
@@ -212,9 +214,8 @@ func (c *Config) Run(timeout time.Duration) (rc int, output string, err error) {
 			return &winrm.ClientAuthRequest{}
 		}
 	case AuthSSH:
-		// TODO: port configuration?
 		var sshClient *ssh.Client
-		sshClient, err = ssh.Dial("tcp", c.SSHHost+":22", &ssh.ClientConfig{
+		sshClient, err = ssh.Dial("tcp", fmt.Sprintf("%s:%d", c.SSHHost, c.SSHPort), &ssh.ClientConfig{
 			User:            c.SSHUser,
 			Auth:            []ssh.AuthMethod{ssh.Password(c.SSHPassword)},
 			HostKeyCallback: ssh.InsecureIgnoreHostKey(), //nolint:gosec // TODO: really?

@@ -25,7 +25,7 @@ Not supported at the moment is Kerberos.
 ```
 Arguments:
   -H, --host string          Host name, IP Address of the remote host (default "127.0.0.1")
-  -p, --port int             Port number WinRM
+  -p, --port int             Port number WinRM (default: 5985 & 5986 for TLS)
   -U, --user string          Username of the remote host
   -P, --password string      Password of the user
   -k, --insecure             Don't verify the hostname on the returned certificate
@@ -37,6 +37,7 @@ Arguments:
       --icingacmd string     Executes commands of Icinga PowerShell Framework (e.g. Invoke-IcingaCheckCPU)
       --auth string          Authentication mechanism - NTLM | SSH (default "basic")
       --sshhost string       SSH Host (mandatory if --auth=SSH)
+      --sshport int          SSH Port (default 22)
       --sshuser string       SSH Username (mandatory if --auth=SSH)
       --sshpassword string   SSH Password (mandatory if --auth=SSH)
   -t, --timeout int          Abort the check after n seconds (default 10)
