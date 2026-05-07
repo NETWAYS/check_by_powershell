@@ -72,6 +72,8 @@ func main() {
 	}
 
 	fmt.Print(output)
+	//nolint: gocritic
+	// We ignore the gocritic since the defer cannot run if we exit here.
 	os.Exit(rc)
 }
 

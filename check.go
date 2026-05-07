@@ -17,7 +17,7 @@ import (
 
 const (
 	Port        = 5985
-	TlsPort     = 5986
+	TLSPort     = 5986
 	AuthDefault = AuthNTLM
 	AuthBasic   = "basic"
 	AuthNTLM    = "ntlm"
@@ -30,13 +30,13 @@ type Config struct {
 	Port          int
 	User          string
 	Password      string
-	NoTls         bool
+	NoTLS         bool
 	Insecure      bool
-	TlsCAPath     string
+	TLSCAPath     string
 	tlsCA         []byte
-	TlsCertPath   string
+	TLSCertPath   string
 	tlsCert       []byte
-	TlsKeyPath    string
+	TLSKeyPath    string
 	tlsKey        []byte
 	Command       string
 	IcingaCommand string
@@ -60,10 +60,10 @@ func BuildConfigFlags(fs *pflag.FlagSet) (config *Config) {
 
 	fs.BoolVarP(&config.Insecure, "insecure", "k", false,
 		"Don't verify the hostname on the returned certificate")
-	fs.BoolVar(&config.NoTls, "no-tls", false, "Don't use a TLS connection, use the HTTP protocol")
-	fs.StringVar(&config.TlsCAPath, "ca", "", "CA certificate")
-	fs.StringVar(&config.TlsCertPath, "cert", "", "Client certificate")
-	fs.StringVar(&config.TlsKeyPath, "key", "", "Client Key")
+	fs.BoolVar(&config.NoTLS, "no-tls", false, "Don't use a TLS connection, use the HTTP protocol")
+	fs.StringVar(&config.TLSCAPath, "ca", "", "CA certificate")
+	fs.StringVar(&config.TLSCertPath, "cert", "", "Client certificate")
+	fs.StringVar(&config.TLSKeyPath, "key", "", "Client Key")
 
 	fs.StringVar(&config.Command, "cmd", "", "Command to execute on the remote machine")
 	fs.StringVar(&config.IcingaCommand, "icingacmd", "",
@@ -104,23 +104,23 @@ func (c *Config) Validate() (err error) {
 
 	// Set default port if unset
 	if c.Port < 1 {
-		c.Port = TlsPort
-		if c.NoTls {
+		c.Port = TLSPort
+		if c.NoTLS {
 			c.Port = Port
 		}
 	}
 
-	if c.TlsCertPath != "" {
-		c.tlsCert, err = os.ReadFile(c.TlsCertPath)
+	if c.TLSCertPath != "" {
+		c.tlsCert, err = os.ReadFile(c.TLSCertPath)
 		if err != nil {
 			return fmt.Errorf("could not read certificate: %w", err)
 		}
 
-		if c.TlsKeyPath == "" {
+		if c.TLSKeyPath == "" {
 			return errors.New("please specify certificate key when tls is enabled")
 		}
 
-		c.tlsKey, err = os.ReadFile(c.TlsKeyPath)
+		c.tlsKey, err = os.ReadFile(c.TLSKeyPath)
 		if err != nil {
 			return fmt.Errorf("could not read certificate key: %w", err)
 		}
@@ -132,8 +132,8 @@ func (c *Config) Validate() (err error) {
 		}
 	}
 
-	if c.TlsCAPath != "" {
-		c.tlsCA, err = os.ReadFile(c.TlsCAPath)
+	if c.TLSCAPath != "" {
+		c.tlsCA, err = os.ReadFile(c.TLSCAPath)
 		if err != nil {
 			return fmt.Errorf("could not read CA file: %w", err)
 		}
@@ -194,7 +194,7 @@ func (c *Config) Run(timeout time.Duration) (rc int, output string, err error) {
 	endpoint := winrm.NewEndpoint(
 		c.Host,     // Host to connect to
 		c.Port,     // Winrm port
-		!c.NoTls,   // Use TLS
+		!c.NoTLS,   // Use TLS
 		c.Insecure, // Allow insecure connection
 		c.tlsCA,    // CA certificate
 		c.tlsCert,  // Client Certificate
@@ -215,6 +215,7 @@ func (c *Config) Run(timeout time.Duration) (rc int, output string, err error) {
 		}
 	case AuthSSH:
 		var sshClient *ssh.Client
+
 		sshClient, err = ssh.Dial("tcp", fmt.Sprintf("%s:%d", c.SSHHost, c.SSHPort), &ssh.ClientConfig{
 			User:            c.SSHUser,
 			Auth:            []ssh.AuthMethod{ssh.Password(c.SSHPassword)},

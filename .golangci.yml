@@ -1,40 +1,42 @@
 version: "2"
+run:
+  tests: false
 linters:
+  default: all
   enable:
-    - asasalint
-    - asciicheck
-    - bidichk
-    - dogsled
-    - dupl
-    - durationcheck
-    - errchkjson
-    - errorlint
-    - exhaustive
-    - gocheckcompilerdirectives
-    - gochecksumtype
-    - gosec
-    - gosmopolitan
-    - loggercheck
-    - makezero
-    - nilnesserr
-    - protogetter
-    - reassign
-    - recvcheck
-    - spancheck
-    - testifylint
-    - whitespace
-    - wsl
-    - zerologlint
+    - wsl_v5
   disable:
-    - bodyclose
-    - contextcheck
-    - funlen
+    - wsl
+    - cyclop
+    - depguard
+    - err113
+    - exhaustruct
+    - forbidigo
+    - forcetypeassert
+    - gochecknoglobals
+    - gochecknoinits
+    - godot
+    - godox
+    - lll
+    - mnd
     - musttag
-    - nilerr
-    - noctx
-    - rowserrcheck
-    - sqlclosecheck
-    - unparam
+    - nakedret
+    - nlreturn
+    - nolintlint
+    - nonamedreturns
+    - tagliatelle
+    - varnamelen
+    - wrapcheck
+    - funlen
+  settings:
+    nestif:
+      min-complexity: 8
+    wsl_v5:
+      allow-first-in-block: true
+      allow-whole-block: true
+      branch-max-lines: 2
+      disable:
+        - err
   exclusions:
     generated: lax
     presets:
@@ -43,13 +45,13 @@ linters:
       - legacy
       - std-error-handling
     paths:
-      - (.+)_test\.go
-      - internal/config/http_config.go
-      - internal/config/config.go
       - third_party$
       - builtin$
       - examples$
 formatters:
+  enable:
+    - gofmt
+    - goimports
   exclusions:
     generated: lax
     paths:
