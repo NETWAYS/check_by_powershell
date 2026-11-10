@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	github.com/NETWAYS/go-check v1.0.0
 	github.com/masterzen/winrm v0.0.0-20260407182533-5570be7f80cf
-	github.com/spf13/pflag v1.0.10
+	github.com/spf13/pflag v1.1.0
 	golang.org/x/crypto v0.58.0
 )
 
